@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Archivo_Black, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
+const archivoBlack = Archivo_Black({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-head",
+  display: "swap",
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
+ 
+const space = Space_Grotesk({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -23,7 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body
+        className={`${archivoBlack.variable} ${space.variable}`}
+      >
         {children}
       </body>
     </html>
