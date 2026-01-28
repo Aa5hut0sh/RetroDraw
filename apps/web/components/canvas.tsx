@@ -84,7 +84,7 @@ export function Canvas({
         style={{ backgroundColor: "#f5f1e6" , cursor: getCursorStyle() }}
       />
 
-      <Topbar setSelectedTool={setSelectedTool} selectedTool={selectedTool} />
+      <Topbar  setSelectedTool={setSelectedTool} selectedTool={selectedTool} />
     </div>
   );
 }
@@ -102,7 +102,8 @@ function Topbar({
       style={{
         position: "fixed",
         top: 10,
-        left: 10,
+        left: "50%",
+        transform: "translateX(-50%)",
         zIndex: 10,
       }}
     >

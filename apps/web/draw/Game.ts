@@ -63,6 +63,16 @@ export class Game {
   private currentPencilPoints: { x: number; y: number }[] = [];
   private eraserRadius = 5;
 
+  private camera = {
+    x: 0,
+    y: 0,
+    zoom: 1,
+  };
+
+  private isPanning = false;
+  private lastPanX = 0;
+  private lastPanY = 0;
+
   constructor(canvas: HTMLCanvasElement, roomId: number, socket: WebSocket) {
     this.canvas = canvas;
     this.roomId = roomId;
@@ -112,9 +122,35 @@ export class Game {
     };
   }
 
+  screenToWorld(x: number, y: number) {
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: (x - rect.left - this.camera.x) / this.camera.zoom,
+      y: (y - rect.top - this.camera.y) / this.camera.zoom,
+    };
+  }
+
+  worldToScreen(x: number, y: number) {
+    return {
+      x: x * this.camera.zoom + this.camera.x,
+      y: y * this.camera.zoom + this.camera.y,
+    };
+  }
+
   clearCanvas() {
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.lineWidth = 2;
+
+    this.ctx.setTransform(
+      this.camera.zoom,
+      0,
+      0,
+      this.camera.zoom,
+      this.camera.x,
+      this.camera.y,
+    );
+
+    this.ctx.lineWidth = 2 / this.camera.zoom;
     this.ctx.lineCap = "round";
 
     this.existingShapes.forEach((shape) => {
@@ -202,13 +238,21 @@ export class Game {
   }
 
   mouseDownHandler = (e: MouseEvent) => {
-    this.stX = e.clientX;
-    this.stY = e.clientY;
+    const { x, y } = this.screenToWorld(e.clientX, e.clientY);
+    this.stX = x;
+    this.stY = y;
+
+    if (this.selectedTool === "pointer") {
+      this.isPanning = true;
+      this.lastPanX = e.clientX;
+      this.lastPanY = e.clientY;
+      return;
+    }
 
     if (this.selectedTool === "text") {
       const rect = this.canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+
+      const { x, y } = this.screenToWorld(e.clientX, e.clientY);
 
       createTextInput(e.clientX, e.clientY, (text) => {
         const shape: Shape = {
@@ -235,15 +279,17 @@ export class Game {
     this.isClicked = true;
 
     if (this.selectedTool === "pencil") {
-      this.currentPencilPoints = [{ x: e.clientX, y: e.clientY }];
+      this.currentPencilPoints = [{ x, y }];
     }
   };
 
   mouseUpHandler = (e: MouseEvent) => {
     this.isClicked = false;
+    this.isPanning = false;
+    const { x, y } = this.screenToWorld(e.clientX, e.clientY);
 
-    const width = e.clientX - this.stX;
-    const height = e.clientY - this.stY;
+    const width = x - this.stX;
+    const height = y - this.stY;
 
     const selectedTool = this.selectedTool;
     let shape: Shape | null = null;
@@ -286,8 +332,8 @@ export class Game {
         type: "line",
         x1: this.stX,
         y1: this.stY,
-        x2: e.clientX,
-        y2: e.clientY,
+        x2: x,
+        y2: y,
       };
     }
 
@@ -296,8 +342,8 @@ export class Game {
         type: "arrow",
         x1: this.stX,
         y1: this.stY,
-        x2: e.clientX,
-        y2: e.clientY,
+        x2: x,
+        y2: y,
       };
     }
 
@@ -328,20 +374,30 @@ export class Game {
   };
 
   mouseMoveHandler = (e: MouseEvent) => {
-    if (!this.isClicked) return;
+    if (this.isPanning) {
+      this.camera.x += e.clientX - this.lastPanX;
+      this.camera.y += e.clientY - this.lastPanY;
 
-    const width = e.clientX - this.stX;
-    const height = e.clientY - this.stY;
+      this.lastPanX = e.clientX;
+      this.lastPanY = e.clientY;
+
+      this.clearCanvas();
+      return;
+    }
+
+    if (!this.isClicked) return;
+    const { x, y } = this.screenToWorld(e.clientX, e.clientY);
+    const width = x - this.stX;
+    const height = y- this.stY;
 
     this.ctx.strokeStyle = "rgba(0,0,0)";
-    this.ctx.lineWidth = 2;
+    this.ctx.lineWidth = 2/this.camera.zoom;
     this.ctx.lineCap = "round";
 
     const selectedTool = this.selectedTool;
 
     if (this.selectedTool === "eraser") {
-      const x = e.clientX;
-      const y = e.clientY;
+      const { x, y } = this.screenToWorld(e.clientX, e.clientY);
 
       const shapeToErase = this.existingShapes.find((shape) =>
         this.isPointInsideShape(x, y, shape),
@@ -370,29 +426,31 @@ export class Game {
         this.currentPencilPoints[this.currentPencilPoints.length - 1];
 
       this.ctx.beginPath();
+      const { x, y } = this.screenToWorld(e.clientX, e.clientY);
       this.ctx.moveTo(lastPoint.x, lastPoint.y);
-      this.ctx.lineTo(e.clientX, e.clientY);
+      this.ctx.lineTo(x, y);
       this.ctx.stroke();
       this.ctx.closePath();
 
-      this.currentPencilPoints.push({ x: e.clientX, y: e.clientY });
+      this.currentPencilPoints.push({ x, y });
       return;
     }
 
     if (selectedTool === "line") {
       this.clearCanvas();
-
+      const { x, y } = this.screenToWorld(e.clientX, e.clientY);
       this.ctx.beginPath();
       this.ctx.moveTo(this.stX, this.stY);
-      this.ctx.lineTo(e.clientX, e.clientY);
+      this.ctx.lineTo(x, y);
       this.ctx.stroke();
       return;
     }
     if (selectedTool === "arrow") {
       this.clearCanvas();
+      const { x, y } = this.screenToWorld(e.clientX, e.clientY);
 
-      const endX = e.clientX;
-      const endY = e.clientY;
+      const endX = x;
+      const endY = y;
 
       this.ctx.beginPath();
       this.ctx.moveTo(this.stX, this.stY);
@@ -450,10 +508,28 @@ export class Game {
     }
   };
 
+  mouseWheelHandler = (e: WheelEvent) => {
+    e.preventDefault();
+
+    const zoomFactor = 1.1;
+    const direction = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
+
+    const mouse = this.screenToWorld(e.clientX, e.clientY);
+
+    this.camera.zoom *= direction;
+    this.camera.zoom = Math.min(Math.max(this.camera.zoom, 0.2), 5);
+
+    this.camera.x = e.clientX - mouse.x * this.camera.zoom;
+    this.camera.y = e.clientY - mouse.y * this.camera.zoom;
+
+    this.clearCanvas();
+  };
+
   initMouseHandlers() {
     this.canvas.addEventListener("mousedown", this.mouseDownHandler);
     this.canvas.addEventListener("mouseup", this.mouseUpHandler);
     this.canvas.addEventListener("mousemove", this.mouseMoveHandler);
+    this.canvas.addEventListener("wheel", this.mouseWheelHandler);
   }
 
   destroy() {
@@ -488,7 +564,6 @@ export class Game {
         { x: sx + width / 2, y: sy + height }, // Bottom
         { x: sx, y: sy + height / 2 }, // Left
       ];
-
 
       for (let i = 0; i < 4; i++) {
         const p1 = points[i];

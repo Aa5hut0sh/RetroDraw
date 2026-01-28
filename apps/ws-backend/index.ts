@@ -90,8 +90,6 @@ wss.on("connection", (ws, req) => {
         }
       });
 
-
-      console.log("shape removed");
     }
 
     if (parsedData.type === "chat") {
