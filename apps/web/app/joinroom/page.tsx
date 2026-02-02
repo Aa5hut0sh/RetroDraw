@@ -155,7 +155,7 @@ function DialogStyleDefault({
       </Dialog.Trigger>
       <Dialog.Content>
         <Dialog.Header>
-          <Text as="h5">Enter Room Secret</Text>
+          <Text as="h5">{mode==="join" ? "Enter Room Secret" :"Create Room Secret" }</Text>
         </Dialog.Header>
         <section className="flex flex-col gap-4 p-4">
           <section className="text-xl">
