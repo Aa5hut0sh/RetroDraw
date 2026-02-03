@@ -1,18 +1,11 @@
 import axios from "axios";
+import { BACKEND_URL } from "@/app/config";
 import RoomCanvas from "@/components/RoomCanvas";
 
 const getRoomId = async (slug: string) => {
-  const res = await fetch(
-    `${process.env.INTERNAL_BACKEND_URL}/ws/room/${slug}`,
-    { cache: "no-store" }
-  );
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch room");
-  }
-
-  const data = await res.json();
-  return data.roomId;
+  const response = await axios.get(`${BACKEND_URL}/api/ws/room/${slug}`);
+  console.log(response.data.roomId);
+  return response.data.roomId;
 };
 
 export default async function CanvasPage({

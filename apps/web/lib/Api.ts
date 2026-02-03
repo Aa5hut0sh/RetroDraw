@@ -1,9 +1,9 @@
 "use client"
 import axios from "axios";
-
+import { BACKEND_URL } from "@/app/config";
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: `${BACKEND_URL}/api`,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
