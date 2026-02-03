@@ -7,7 +7,6 @@ import { Canvas } from "@/components/canvas";
 import { useAuth } from "@/app/hooks/useSocket";
 import { useRouter } from "next/navigation";
 import { useRoomAuth } from "@/app/hooks/useSocket";
-const token = localStorage.getItem("token");
 
 export default function RoomCanvas({
   roomId,
@@ -34,6 +33,12 @@ export default function RoomCanvas({
   }, [hasAccess, RoomLoading]);
 
   useEffect(() => {
+    if (isLoading || RoomLoading) return;
+    if (!isLoggedin || !hasAccess) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     const ws = new WebSocket(`${WS_URL}/ws?token=${token}`);
 
     ws.onopen = () => {
