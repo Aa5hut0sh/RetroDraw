@@ -1,9 +1,16 @@
 "use client"
 import axios from "axios";
-import { BACKEND_URL } from "@/app/config";
+const getBaseUrl = () => {
+  
+  if (typeof window !== "undefined") {
+    return "/api";
+  }
+
+  return "http://127.0.0.1:3001/api";
+};
 
 const api = axios.create({
-  baseURL: `${BACKEND_URL}`,
+  baseURL: getBaseUrl(),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
