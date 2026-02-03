@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BACKEND_URL } from "@/app/config";
-import {getBaseUrl} from "@/lib/Api"
+import { getBaseUrl } from "@/lib/utils";
 import RoomCanvas from "@/components/RoomCanvas";
 
 const getRoomId = async (slug: string) => {
