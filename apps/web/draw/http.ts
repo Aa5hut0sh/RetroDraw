@@ -19,7 +19,7 @@ type Shape =
 type ChatRow = { message: string };
 
 export const getexistingShapes = async (roomId: number): Promise<Shape[]> => {
-  const response = await axios.get(`${BACKEND_URL}/ws/chat/${roomId}`);
+  const response = await axios.get(`${BACKEND_URL}/api/ws/chat/${roomId}`);
   const rows: ChatRow[] = response.data.messages ?? [];
   rows.map((r) => r.message);
 
