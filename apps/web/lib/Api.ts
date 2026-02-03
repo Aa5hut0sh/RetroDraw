@@ -1,6 +1,6 @@
 "use client"
 import axios from "axios";
-const getBaseUrl = () => {
+export const getBaseUrl = () => {
   
   if (typeof window !== "undefined") {
     return "/api";

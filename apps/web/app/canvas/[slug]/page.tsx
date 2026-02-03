@@ -1,9 +1,10 @@
 import axios from "axios";
 import { BACKEND_URL } from "@/app/config";
+import {getBaseUrl} from "@/lib/Api"
 import RoomCanvas from "@/components/RoomCanvas";
 
 const getRoomId = async (slug: string) => {
-  const response = await axios.get(`${BACKEND_URL}/ws/room/${slug}`);
+  const response = await axios.get(`${getBaseUrl()}/ws/room/${slug}`);
   console.log(response.data.roomId);
   return response.data.roomId;
 };
