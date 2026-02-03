@@ -33,11 +33,20 @@ export default function RoomCanvas({
   }, [hasAccess, RoomLoading]);
 
   useEffect(() => {
-    if (isLoading || RoomLoading) return;
-    if (!isLoggedin || !hasAccess) return;
+    if (isLoading || RoomLoading){
+      console.log("loading error");
+      return;
+    } 
+    if (!isLoggedin || !hasAccess){
+      console.log("Access error");
+      return;
+    } 
 
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      console.log("token error");
+      return;
+    }
 
     const ws = new WebSocket(`${WS_URL}/ws?token=${token}`);
 
@@ -51,10 +60,13 @@ export default function RoomCanvas({
       );
     };
 
+    ws.onerror = (e) => console.error("WS error", e);
+    ws.onclose = (e) => console.log("WS closed", e.code, e.reason);
+
     return () => {
       ws.close();
     };
-  }, [roomId]);
+  }, [roomId , isLoading , RoomLoading , isLoggedin , hasAccess]);
 
   if (!socket) {
     return <div> Connecting to server</div>;
