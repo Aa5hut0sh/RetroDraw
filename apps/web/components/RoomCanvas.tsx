@@ -48,7 +48,7 @@ export default function RoomCanvas({
       return;
     }
 
-    const ws = new WebSocket(`${WS_URL}/ws?token=${token}`);
+    const ws = new WebSocket(`${WS_URL}?token=${token}`);
 
     ws.onopen = () => {
       setSocket(ws);
