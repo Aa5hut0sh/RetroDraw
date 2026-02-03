@@ -26,6 +26,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+ENV INTERNAL_BACKEND_URL=$INTERNAL_BACKEND_URL
 
 COPY --from=builder /app/apps/web/.next/standalone ./
 

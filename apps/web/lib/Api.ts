@@ -1,7 +1,6 @@
 "use client"
 import axios from "axios";
 
-import { getBaseUrl } from "./utils";
 
 const api = axios.create({
   baseURL: '/api',

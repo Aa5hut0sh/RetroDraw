@@ -3,24 +3,35 @@ import { WS_URL } from "../config";
 
 
 
-export function useSocket(){
-    const [isLoading , setIsLoading]=useState(true);
-    const [socket , setSocket] = useState<WebSocket>();
+export function useSocket() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [socket, setSocket] = useState<WebSocket | null>(null);
 
-    useEffect(()=>{
-        const ws = new WebSocket(`${WS_URL}?token=${localStorage.getItem('token')}`);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
-        ws.onopen = ()=>{
-            setIsLoading(false);
-            setSocket(ws);
-        }
-    } , []);
+    const protocol =
+      window.location.protocol === "https:" ? "wss" : "ws";
 
-    return {
-        socket , 
-        isLoading
-    }
+    const wsUrl = `${protocol}://${window.location.host}/ws?token=${token}`;
+
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      setIsLoading(false);
+      setSocket(ws);
+    };
+
+    ws.onerror = () => {
+      setIsLoading(false);
+    };
+
+    return () => ws.close();
+  }, []);
+
+  return { socket, isLoading };
 }
+
 
 
 export function useAuth() {
