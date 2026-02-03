@@ -34,7 +34,7 @@ export default function RoomCanvas({
   }, [hasAccess, RoomLoading]);
 
   useEffect(() => {
-    const ws = new WebSocket(`${WS_URL}/ws?token=${token}`);
+    const ws = new WebSocket(`${WS_URL}?token=${token}`);
 
     ws.onopen = () => {
       setSocket(ws);
