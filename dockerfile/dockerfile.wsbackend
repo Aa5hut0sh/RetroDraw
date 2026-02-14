@@ -3,13 +3,6 @@ FROM oven/bun
 WORKDIR /app
 
 
-ARG DATABASE_URL
-ENV DATABASE_URL=$DATABASE_URL
-ARG PORT
-ENV PORT=$PORT
-ARG JWT_SECRET
-ENV JWT_SECRET=$JWT_SECRET
-
 
 COPY ./package.json ./package.json
 COPY ./bun.lock ./bun.lock
