@@ -31,9 +31,9 @@ jobs:
       - name: Deploy to Production Server
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.PROD_SERVER_HOST }}
-          username: ${{ secrets.PROD_SERVER_USERNAME }}
-          key: ${{ secrets.PROD_SERVER_SSH_KEY }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/excalidraw-ws-backend:prod 
             sudo docker stop excalidraw-ws-backend || true
